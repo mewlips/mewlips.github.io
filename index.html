@@ -24,14 +24,14 @@
   <div class="row content">
     <section class="col-sm-3 sidenav">
       <h4>mewlips.github.io</h4>
+      <a href="https://github.com/mewlips">View on GitHub</a>
       <hr>
-      <!--
-      <a href="https://github.com/mewlips" class="pull-right"><span class="icon"></span>View on GitHub</a>
-        -->
+      <h5>Posts</h5>
+      <hr>
       <h5>My Projects</h5>
       <div id="my-projects">Loading...</div>
     </section>
-    <div class="col-sm-9">
+    <section class="col-sm-9">
       <h4><small>RECENT POSTS</small></h4>
       <hr>
       <h5><span class="glyphicon glyphicon-time"></span> Post by mewlips, Sep 27, 2015.</h5>
@@ -40,18 +40,22 @@
         <span class="label label-primary">Tag2</span>
       </h5>
       <br>
-    </div>
-  </div>
 
-  <div class="row">
-    <div class="col-sm-6">
-      <textarea id="markdown-input" oninput="this.editor.update()"
-                rows="6" cols="60"></textarea>
-    </div>
-    <div class="col-sm-6" id="html-preview"></div>
-    <script>
-      new Editor($("#markdown-input"), $("#html-preview"));
-    </script>
+      <div class="row markdown-edit">
+        <div class="col-sm-6">
+          <p>Markdown</p>
+          <textarea id="markdown-input" oninput="this.editor.update()"
+                    rows="10"></textarea>
+        </div>
+        <div class="col-sm-6">
+          <p>Preview</p>
+          <div id="html-preview">
+          </div>
+        </div>
+        <script>
+        </script>
+      </div>
+    </section>
   </div>
 
 </div>

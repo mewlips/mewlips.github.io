@@ -1,12 +1,16 @@
 var app = null;
+var editor = null;
 
 $(document).ready(function() {
     app = new App();
     app.init();
+
+    editor = new Editor($("#markdown-input"), $("#html-preview"));
 });
 
 function App() {
     this.myId = "mewlips";
+    this.origUrl = "https://mewlips.github.io/"
     this.gitHub = new GitHub();
     this.me = this.gitHub.getUser(this.myId);
 }
@@ -47,9 +51,33 @@ App.prototype.loadMyProjects = function (target) {
             link.text(repo.name);
             link.attr('href', repo.html_url);
             var dt = $('<dt></dt>').html(link);
+
             var dd = (repo.description == null || repo.description == "")
                         ? ""
                         : $('<dd></dd>').text(' - ' + repo.description);
+            var small = $('<small></small>');
+            var smallAppended = false;
+            if (repo.fork) {
+                small.append(' ', $('<span class="label label-warning pull-right">Fork</span>'));
+                smallAppended = true;
+            }
+            if (repo.has_issues && repo.open_issues_count > 0) {
+                var issuesPageLink = $('<a>Issues</a>');
+                issuesPageLink.attr('href', repo.html_url + '/issues');
+                issuesPageLink.attr('class', 'label label-info pull-right');
+                small.append(' ', issuesPageLink);
+                smallAppended = true;
+            }
+            if (repo.has_pages && repo.name != "mewlips.github.io") {
+                var projectPageLink = $('<a>Homepage</a>');
+                projectPageLink.attr('href', self.origUrl + repo.name);
+                projectPageLink.attr('class', 'label label-primary pull-right');
+                small.append(' ', projectPageLink);
+                smallAppended = true;
+            }
+            if (smallAppended) {
+                dt.append(small);
+            }
             projects.append(dt, dd);
         }
         target.empty();

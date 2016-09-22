@@ -24,3 +24,19 @@ footer {
     height: auto;
   }
 }
+
+dt {
+  border-top: 1px solid grey;
+  padding-top: 4px;
+  margin-top: 4px;
+}
+
+#markdown-input {
+    min-width: 100%;
+    resize: vertical;
+}
+
+#html-preview {
+    border: 1px solid grey;
+    overflow-y: scroll;
+}
