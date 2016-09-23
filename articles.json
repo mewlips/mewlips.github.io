@@ -1,0 +1,12 @@
+[
+    {
+        "path": "/md/first.md",
+        "title": "First post test",
+        "tags": ["test", "info"]
+    },
+    {
+        "path": "/md/second.md",
+        "title": "Second post test",
+        "tags": ["test", "second"]
+    }
+]

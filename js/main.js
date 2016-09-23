@@ -1,11 +1,8 @@
 var app = null;
-var editor = null;
 
 $(document).ready(function() {
     app = new App();
     app.init();
-
-    editor = new Editor($("#markdown-input"), $("#html-preview"));
 });
 
 function App() {
@@ -13,23 +10,64 @@ function App() {
     this.origUrl = "https://mewlips.github.io/"
     this.gitHub = new GitHub();
     this.me = this.gitHub.getUser(this.myId);
+    this.repos = null;
+    this.articlesJsonPath = "/articles.json";
+    this.articles = null;
 }
 
 App.prototype.init = function () {
     var self = this;
-    //this.loadMarkdownFile('/index.md', $('#index'));
+    this.loadArticlesInfo();
 
-    this.loadMyProjects($("#my-projects"));
+    //this.loadMyProjects($("#projects"));
     this.transformMarkupToHtml();
 }
 
-App.prototype.loadMarkdownFile = function (path, target) {
+App.prototype.getIdFromTitle = function (title) {
+    if (title == null) {
+        title = 'no-title';
+    }
+    return 'article-' + title.replace(/ /g, '-');
+}
+
+App.prototype.loadArticlesInfo = function () {
+    var self = this;
+
     $.ajax({
-        url: path,
+        url: self.articlesJsonPath,
+        dataType: "json",
+        success: function (articles) {
+            self.articles = articles;
+            var ul = $('<ul></ul>');
+            $('#sidenav-articles').append(ul);
+            for (var i = 0; i < articles.length; i++) {
+                var article = articles[i];
+                article.id = self.getIdFromTitle(article.title)
+                article.target = $('<article></article>').attr('id', article.id);
+
+                $('#articles').append(article.target);
+                var a = $('<a></a>')
+                    .attr('href', '#' + article.id)
+                    .text(article.title);
+                ul.append($('<li></li>').append(a));
+                self.loadArticle(article);
+            }
+        }
+    });
+}
+
+App.prototype.loadArticle = function (article) {
+    var self = this;
+    $.ajax({
+        url: article.path,
         dataType: "text",
-        success: function (response) {
-            var htmlContent = markdown.toHTML(response);
-            target.html(htmlContent);
+        success: function (markdownContent) {
+            var loading = $('#articles-loading'); // FIXME
+            if (loading != null) {
+                loading.remove();
+            }
+            article.markdownContent = markdownContent
+            self.makeArticle(article);
         }
     });
 }
@@ -90,4 +128,131 @@ App.prototype.transformMarkupToHtml = function () {
         var md = $(this).html().trim();
         $(this).html(markdown.toHTML(md));
     });
+}
+
+App.prototype.newArticle = function () {
+    var article = {};
+    article.id = 'article-no-title';
+    article.tags = [];
+    article.target = $('<article></article>');
+    article.markdownContent = '[//]: # ({"title": "TITLE", "tags": []})\n';
+
+    this.parseArticleInfoComment(article.markdownContent);
+
+    $('#articles').prepend(article.target);
+    this.makeArticle(article);
+}
+
+App.prototype.parseArticleInfoComment = function (markdownContent) {
+    var comment = markdownContent.split('\n')[0];
+    var jsonString = comment.replace(/.*\({/, '{').replace(/}\).*/, '}');
+    var article = JSON.parse(jsonString);
+    if (article === undefined) {
+        return undefined;
+    }
+    article.id = this.getIdFromTitle(article.title);
+    return article;
+}
+
+App.prototype.mergeArticle = function (toArticle, fromArticle) {
+    if (typeof toArticle === 'object' && typeof fromArticle === 'object') {
+        for (var attr in fromArticle) {
+            toArticle[attr] = fromArticle[attr];
+        }
+    } else {
+        console.log("failed to merge article objects");
+    }
+    return toArticle;
+}
+
+App.prototype.createArticleInfoComment = function (article) {
+    var names = ['title', 'tags', 'dateCreated', 'dateEdited'];
+    var obj = {};
+    for (var i = 0; i < names.length; i++) {
+        obj[names[i]] = article[names[i]];
+    }
+    if (article.dateCreated == null) {
+        obj.dateCreated = new Date().getTime();
+        obj.dateEdited = null;
+    } else {
+        obj.dateEdited = new Date().getTime();
+    }
+    return '[//]: # (' + JSON.stringify(obj) + ')\n';
+}
+
+App.prototype.makeArticle = function (article) {
+    var self = this;
+    var author = 'mewlips'; // TODO
+
+    var articleInfo = this.parseArticleInfoComment(article.markdownContent);
+    if (articleInfo != null) {
+        this.mergeArticle(article, articleInfo);
+    }
+
+    var tags = '';
+    if (article.tags != null && article.tags.length > 0) {
+        var tags = $('<h5></h5>');
+        for (var i = 0; i < article.tags.length; i++) {
+            var tag = $('<span class="label label-primary">' + article.tags[i] + '</span>')
+            tags.append(tag, '\n');
+        }
+    }
+
+    var editButton = $('<button type="button" class="btn btn-xs btn-default pull-right">Edit</button>');
+    var header = $('<h5></h5>')
+                    .append('<span class="glyphicon glyphicon-time"></span>')
+                    .append(' Post by ' + author + '.');
+
+    var date = $('<small></small>');
+    header.append(date);
+    if (article.dateCreated != null) {
+        date.append(' Created: ' + new Date(article.dateCreated).toLocaleString());
+    }
+    if (article.dateEdited != null) {
+        date.append(' / Edited: ' + new Date(article.dateEdited).toLocaleString());
+    }
+
+    article.target.append('<hr>', editButton, header, tags, markdown.toHTML(article.markdownContent));
+
+    editButton.click(function () {
+        var row = $('<div class="row markdown-edit"></div>');
+        var markdownPane = $('<div class="col-sm-6"></div>');
+        var markdownTextArea = $('<textarea></textarea>')
+                                    .attr('class', 'markdown-input')
+                                    .attr('rows', '10')
+                                    .attr('oninput', 'this.editor.update()')
+                                    .text(article.markdownContent);
+        var saveButton = $('<button type="button"></buton>');
+        saveButton.attr('class', 'btn btn-xs btn-default pull-right');
+        saveButton.html('<span class="glyphicon glyphicon-download-alt"></span> Save');
+        saveButton.click(function () {
+            var text = markdownTextArea.val();
+            var newArticleInfo = self.parseArticleInfoComment(text);
+            self.mergeArticle(article, newArticleInfo);
+            text = self.createArticleInfoComment(article) +
+                   text.substring(text.indexOf('\n') + 1);
+            $('<a />', {
+                "download": article.id + '.md',
+                "href": "data:text/plane," + encodeURIComponent(text)
+            }).appendTo("body").click(function() {
+                $(this).remove()
+            })[0].click();
+        });
+
+        markdownPane.append(saveButton, 'Markdown<br>', markdownTextArea);
+
+        var htmlPane = $('<div class="col-sm-6">Preview<br></div>');
+        var htmlPreview = $('<div class="html-preview"></div>');
+        htmlPane.append(htmlPreview);
+
+        article.target.append(row.append(markdownPane, htmlPane));
+
+        article.editor = new Editor(markdownTextArea, htmlPreview);
+        $(this).remove();
+    });
+    if (article.dateCreated == null) {
+        editButton.click();
+    }
+
+    return article;
 }

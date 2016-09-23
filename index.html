@@ -20,47 +20,30 @@
 </head>
 
 <body>
-<div class="container-fluid">
+<div class="container">
   <div class="row content">
     <section class="col-sm-3 sidenav">
       <h4>mewlips.github.io</h4>
       <a href="https://github.com/mewlips">View on GitHub</a>
       <hr>
-      <h5>Posts</h5>
+      <h5>Articles</h5>
+      <div id="sidenav-articles"></div>
       <hr>
       <h5>My Projects</h5>
-      <div id="my-projects">Loading...</div>
+      <div id="projects"></div>
     </section>
     <section class="col-sm-9">
+      <button type="button"
+              class="btn btn-xs btn-default pull-right"
+              onclick="app.newArticle()">New</button>
       <h4><small>RECENT POSTS</small></h4>
-      <hr>
-      <h5><span class="glyphicon glyphicon-time"></span> Post by mewlips, Sep 27, 2015.</h5>
-      <h5>
-        <span class="label label-danger">Tag1</span>
-        <span class="label label-primary">Tag2</span>
-      </h5>
-      <br>
-
-      <div class="row markdown-edit">
-        <div class="col-sm-6">
-          <p>Markdown</p>
-          <textarea id="markdown-input" oninput="this.editor.update()"
-                    rows="10"></textarea>
-        </div>
-        <div class="col-sm-6">
-          <p>Preview</p>
-          <div id="html-preview">
-          </div>
-        </div>
-        <script>
-        </script>
-      </div>
+      <div id="articles"><p id="articles-loading">Loading...</p></div>
     </section>
   </div>
 
 </div>
 
-<footer class="container-fluid">
+<footer class="container">
   <p>Footer</p>
 </footer>
 

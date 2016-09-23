@@ -31,12 +31,22 @@ dt {
   margin-top: 4px;
 }
 
-#markdown-input {
+.markdown-edit {
+    background: lightyellow;
+    padding: 10px 0 10px 0;
+}
+
+.markdown-input {
     min-width: 100%;
     resize: vertical;
 }
 
-#html-preview {
+.html-preview {
     border: 1px solid grey;
+    background: white;
     overflow-y: scroll;
+}
+
+.editor {
+    background: lightyellow;
 }
