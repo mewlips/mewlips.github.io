@@ -1,6 +1,6 @@
 /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
 .row.content {
-  height: 700px;
+  /*height: 700px;*/
 }
 
 .sidenav {
@@ -9,9 +9,9 @@
 }
 
 footer {
-  background-color: #555;
+  background-color: #888;
   color: white;
-  padding: 15px;
+  padding: 5px;
 }
 
 /* On small screens, set height to 'auto' for sidenav and grid */
@@ -42,8 +42,6 @@ dt {
 }
 
 .html-preview {
-    border: 1px solid grey;
-    background: white;
     overflow-y: scroll;
 }
 
