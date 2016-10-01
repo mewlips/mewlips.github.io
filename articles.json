@@ -1,12 +1,11 @@
 [
     {
-        "path": "/md/first.md",
-        "title": "First post test",
-        "tags": ["test", "info"]
-    },
-    {
-        "path": "/md/second.md",
-        "title": "Second post test",
-        "tags": ["test", "second"]
+        "path": "/articles/article-post-test.md",
+        "title": "post test",
+        "tags": [
+            "test"
+        ],
+        "dateCreated": 1474957054888,
+        "dateEdited": 1474957287609
     }
 ]
