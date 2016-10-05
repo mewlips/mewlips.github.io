@@ -5,14 +5,13 @@ $(document).ready(function() {
 });
 
 function App() {
-    this.myId = "mewlips";
     this.origUrl = "https://mewlips.github.io/"
     this.gitHub = new GitHub();
-    this.me = this.gitHub.getUser(this.myId);
+    this.me = this.gitHub.getUser("mewlips");
     this.repos = null;
     this.articlesJsonPath = "/articles.json";
     this.articles = null;
-    this.author = 'mewlips';
+    this.author = 'Mewlips';
 
     this.init();
 }
@@ -40,24 +39,29 @@ App.prototype.loadArticlesInfo = function () {
         dataType: "json",
         success: function (articles) {
             self.articles = articles;
+            var url = new URL(document.URL);
             var ul = $('<ul></ul>');
             $('#sidenav-articles').append(ul);
             for (var i = 0; i < articles.length; i++) {
                 var article = articles[i];
                 article.id = self.getIdFromTitle(article.title)
-                article.target = $('<article></article>')
-                                    .attr('id', article.id)
-                                    .text('loading...');
 
-                $('#articles').prepend(article.target);
                 var a = $('<a></a>')
                     .attr('href', '#' + article.id)
+                    .attr('onclick', 'app.loadArticle(this.article);')
                     .text(article.title);
+                a[0].article = article;
                 var date = $('<small class="pull-right"><small>' +
                              new Date(article.dateCreated).toLocaleDateString() +
                              '</small></small>');
                 ul.prepend($('<li></li>').append(a, ' ', date));
-                self.loadArticle(article);
+                if (url.hash == '#' + article.id) {
+                    self.loadArticle(article);
+                } else if (url.hash == '' || url.hash == '#') {
+                    if (i == articles.length - 1) { // latest article
+                        self.loadArticle(article);
+                    }
+                }
             }
         }
     });
@@ -69,10 +73,14 @@ App.prototype.loadArticle = function (article) {
         url: article.path,
         dataType: "text",
         success: function (markdownContent) {
-            var loading = $('#articles-loading');
-            if (loading != null) {
-                loading.remove();
-            }
+            article.target = $('<article></article>')
+                                .attr('id', article.id)
+                                .text('loading...');
+
+            var articleContent = $('#article-content');
+            articleContent.empty();
+            articleContent.append(article.target);
+
             article.markdownContent = markdownContent;
             article.target.empty();
             self.makeArticle(article);
@@ -147,7 +155,7 @@ App.prototype.newArticle = function () {
 
     this.parseArticleInfoComment(article.markdownContent);
 
-    $('#articles').prepend(article.target);
+    $('#article-content').prepend(article.target);
     this.makeArticle(article);
 }
 
@@ -205,7 +213,10 @@ App.prototype.makeArticle = function (article) {
         }
     }
 
-    var editButton = $('<button type="button" class="btn btn-xs btn-default pull-right">Edit</button>');
+    var editButton = $('<button type="button"></button>')
+        .addClass('btn btn-xs btn-default pull-right')
+        .append('<span class="glyphicon glyphicon-edit"></span>');
+
     var header = $('<h5></h5>')
                     .append('<span class="glyphicon glyphicon-time"></span>')
                     .append(' Post by ' + this.author + '.');
@@ -221,10 +232,43 @@ App.prototype.makeArticle = function (article) {
 
     var htmlTarget = $('<div class="html-preview"></div>')
                         .html(markdown.toHTML(article.markdownContent));
-    article.target.append('<hr>', editButton, header, tags, htmlTarget);
+
+    var markdownTarget = $('<div class="row markdown-edit"></div>');
+    markdownTarget.hide();
+
+    var commentsTarget = $('<div id="disqus_thread"></div>');
+    commentsTarget.append($('<script></script>').append(
+            'var disqus_config = function () {\n' +
+            '    this.page.url = "https://mewlips.github.com#!' + article.id + '";\n' +
+            '    this.page.identifier = "' + article.dateCreated + '";\n' +
+            '    this.page.title = "' + article.title + '";\n' +
+            '};\n' +
+            'if (window.DISQUS !== undefined) {\n' +
+            '    DISQUS.reset({\n' +
+            '        reload: true,\n' +
+            '        config: disqus_config\n' +
+            '    });\n' +
+            '} else {\n' +
+            '    (function() {\n' +
+            '        var d = document, s = d.createElement("script");\n' +
+            '        s.src = "//mewlips.disqus.com/embed.js";\n' +
+            '        s.setAttribute("data-timestamp", +new Date());\n' +
+            '        (d.head || d.body).appendChild(s);\n' +
+            '    })();\n' +
+            '}'
+        )
+    );
+    commentsTarget.append($('<noscript>Please enable JavaScript to view the ' +
+                            '<a href="https://disqus.com/?ref_noscript">' +
+                            'comments powered by Disqus.</a></noscript>'));
+
+    article.target.append(editButton, header, tags,
+                          htmlTarget, markdownTarget);
+    if (article.dateCreated != null) {
+        article.target.append(commentsTarget);
+    }
 
     editButton.click(function () {
-        var row = $('<div class="row markdown-edit"></div>');
         var markdownPane = $('<div class="col-sm-12"></div>');
         var markdownTextArea = $('<textarea></textarea>')
                                     .attr('class', 'markdown-input')
@@ -253,21 +297,25 @@ App.prototype.makeArticle = function (article) {
         closeButton.html('<span class="glyphicon glyphicon-remove"></span> Close');
         closeButton.click(function() {
             editButton.show();
-            article.markdownEditor.remove();
+            markdownTarget.empty();
+            markdownTarget.hide();
             article.markdownContent = markdownTextArea.val();
             htmlTarget.css('height', 'auto');
         });
 
         markdownPane.append(closeButton, saveButton, 'Markdown Editor<br>', markdownTextArea);
 
-        article.target.append(row.append(markdownPane));
-        article.markdownEditor = row;
+        markdownTarget.empty();
+        markdownTarget.append(markdownPane);
+        markdownTarget.show();
 
         article.editor = new Editor(markdownTextArea, htmlTarget);
         $(this).hide();
     });
     if (article.dateCreated == null) {
         editButton.click();
+    } else {
+
     }
 
     return article;

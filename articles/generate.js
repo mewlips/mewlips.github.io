@@ -3,7 +3,7 @@
 var fs = require('fs');
 var path = require('path');
 
-const ARTICLES_PATH = '../articles';
+const ARTICLES_PATH = '.';
 const ARTICLES_JSON_PATH = '../articles.json';
 
 fs.readdir(ARTICLES_PATH, function (err, files) {

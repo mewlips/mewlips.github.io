@@ -1,11 +1,12 @@
 [
     {
-        "path": "/articles/article-post-test.md",
-        "title": "post test",
+        "path": "/articles/article-GitHub-페이지로-블로그-만들기.md",
+        "title": "GitHub 페이지로 블로그 만들기",
         "tags": [
-            "test"
+            "blog",
+            "disqus"
         ],
-        "dateCreated": 1474957054888,
-        "dateEdited": 1474957287609
+        "dateCreated": 1475654923030,
+        "dateEdited": null
     }
 ]

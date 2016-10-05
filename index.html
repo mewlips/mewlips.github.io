@@ -23,8 +23,8 @@
 <div class="container">
   <div class="row content">
     <section class="col-sm-3 sidenav">
-      <h4>mewlips.github.io</h4>
-      <a href="https://github.com/mewlips">View on GitHub</a>
+      <h3><a href="https://mewlips.github.io">mewlips.github.io</a></h3>
+      <h6><a href="https://github.com/mewlips">View on GitHub</a></h6>
       <hr>
       <h5>Articles</h5>
       <div id="sidenav-articles"></div>
@@ -35,9 +35,9 @@
     <section class="col-sm-9">
       <button type="button"
               class="btn btn-xs btn-default pull-right"
-              onclick="app.newArticle()">New</button>
-      <h4><small>RECENT POSTS</small></h4>
-      <div id="articles"><p id="articles-loading">Loading...</p></div>
+              onclick="app.newArticle()"><span class="glyphicon glyphicon-pencil"></span></button>
+      <small>RECENT ARTICLE</small>
+      <div id="article-content"></div>
     </section>
   </div>
 
