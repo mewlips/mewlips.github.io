@@ -1,5 +1,5 @@
 {
-    "sawgger": "2.0",
+    "swagger": "2.0",
     "info": {
         "title": "nx-remote-controller-mod",
         "version": "0.9"
@@ -44,6 +44,7 @@
         "/api/v1/osd/get": {
             "get": {
                 "description": "get osd screen image"
+            }
         },
         "/api/v1/input/inject": {
             "get": {
